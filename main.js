@@ -61,7 +61,18 @@ function isColliding(x, y) {
     let tileX = Math.floor(x / TILE_SIZE);
     let tileY = Math.floor(y / TILE_SIZE);
 
+    // OUTSIDE MAP = COLLISION
+    if (
+        tileX < 0 ||
+        tileY < 0 ||
+        tileY >= map.length ||
+        tileX >= map[0].length
+    ) {
+        return true;
+    }
+
     return map[tileY][tileX] === 1;
+
 }
 
 // UPDATE
