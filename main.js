@@ -1,40 +1,50 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-canvas.width = 800;
-canvas.height = 608;
+canvas.width = 960;
+canvas.height = 640;
 
 const TILE_SIZE = 32;
 
-// MAP
-// 0 = floor
-// 1 = wall
+// BIG MAP
+const map = [];
 
+for(let y = 0; y < 50; y++) {
 
-const map = [
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-];
+    let row = [];
+
+    for(let x = 0; x < 50; x++) {
+
+        // outer walls
+        if(
+            x === 0 ||
+            y === 0 ||
+            x === 49 ||
+            y === 49
+        ) {
+            row.push(1);
+        } else {
+            row.push(0);
+        }
+    }
+
+    map.push(row);
+}
+
 // PLAYER
 const player = {
-    x: 100,
-    y: 100,
+    x: 200,
+    y: 200,
     width: 28,
     height: 28,
     speed: 4,
     color: "cyan"
+};
+
+// CAMERA
+const camera = {
+    x: 0,
+    y: 0
 };
 
 // KEYS
@@ -64,7 +74,6 @@ function isColliding(x, y) {
     let tileX = Math.floor(x / TILE_SIZE);
     let tileY = Math.floor(y / TILE_SIZE);
 
-    // OUTSIDE MAP = COLLISION
     if (
         tileX < 0 ||
         tileY < 0 ||
@@ -75,7 +84,6 @@ function isColliding(x, y) {
     }
 
     return map[tileY][tileX] === 1;
-
 }
 
 // UPDATE
@@ -84,21 +92,10 @@ function update() {
     let nextX = player.x;
     let nextY = player.y;
 
-    if (keys["ArrowUp"]) {
-        nextY -= player.speed;
-    }
-
-    if (keys["ArrowDown"]) {
-        nextY += player.speed;
-    }
-
-    if (keys["ArrowLeft"]) {
-        nextX -= player.speed;
-    }
-
-    if (keys["ArrowRight"]) {
-        nextX += player.speed;
-    }
+    if (keys["ArrowUp"]) nextY -= player.speed;
+    if (keys["ArrowDown"]) nextY += player.speed;
+    if (keys["ArrowLeft"]) nextX -= player.speed;
+    if (keys["ArrowRight"]) nextX += player.speed;
 
     if (!isColliding(nextX, player.y)) {
         player.x = nextX;
@@ -107,6 +104,10 @@ function update() {
     if (!isColliding(player.x, nextY)) {
         player.y = nextY;
     }
+
+    // CAMERA FOLLOWS PLAYER
+    camera.x = player.x - canvas.width / 2;
+    camera.y = player.y - canvas.height / 2;
 }
 
 // DRAW MAP
@@ -123,8 +124,8 @@ function drawMap() {
             }
 
             ctx.fillRect(
-                x * TILE_SIZE,
-                y * TILE_SIZE,
+                x * TILE_SIZE - camera.x,
+                y * TILE_SIZE - camera.y,
                 TILE_SIZE,
                 TILE_SIZE
             );
@@ -138,8 +139,8 @@ function drawPlayer() {
     ctx.fillStyle = player.color;
 
     ctx.fillRect(
-        player.x,
-        player.y,
+        player.x - camera.x,
+        player.y - camera.y,
         player.width,
         player.height
     );
@@ -154,7 +155,7 @@ function draw() {
     drawPlayer();
 }
 
-// GAME LOOP
+// LOOP
 function gameLoop() {
 
     update();
