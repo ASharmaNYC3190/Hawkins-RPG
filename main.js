@@ -169,10 +169,31 @@ function drawMap() {
 
         for(let x = 0; x < map[y].length; x++) {
 
-            if(map[y][x] === 1) {
+            let tile = map[y][x];
+
+            // WALL
+            if(tile === 1) {
                 ctx.fillStyle = "#333";
-            } else {
-                ctx.fillStyle = "#111";
+            }
+
+            // GRASS
+            else if(tile === 0) {
+                ctx.fillStyle = "#0b3d0b";
+            }
+
+            // ROAD
+            else if(tile === 2) {
+                ctx.fillStyle = "#666";
+            }
+
+            // TREE
+            else if(tile === 3) {
+                ctx.fillStyle = "#145214";
+            }
+
+            // HOUSE
+            else if(tile === 4) {
+                ctx.fillStyle = "#5c4033";
             }
 
             ctx.fillRect(
@@ -184,7 +205,6 @@ function drawMap() {
         }
     }
 }
-
 // DRAW PLAYER
 function drawPlayer() {
 
