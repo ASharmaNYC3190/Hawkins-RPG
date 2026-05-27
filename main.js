@@ -6,6 +6,7 @@ canvas.height = 640;
 
 const TILE_SIZE = 32;
 
+
 // BIG MAP
 const map = [];
 
@@ -15,7 +16,7 @@ for(let y = 0; y < 50; y++) {
 
     for(let x = 0; x < 50; x++) {
 
-        // outer walls
+        // OUTER WALLS
         if(
             x === 0 ||
             y === 0 ||
@@ -23,14 +24,40 @@ for(let y = 0; y < 50; y++) {
             y === 49
         ) {
             row.push(1);
-        } else {
+        }
+
+        // ROAD
+        else if(y === 25) {
+            row.push(2);
+        }
+
+        // TREES
+        else if(
+            (x === 10 && y > 5 && y < 20) ||
+            (x === 11 && y > 5 && y < 20) ||
+            (x === 30 && y > 10 && y < 35)
+        ) {
+            row.push(3);
+        }
+
+        // HOUSE
+        else if(
+            x > 18 &&
+            x < 24 &&
+            y > 10 &&
+            y < 16
+        ) {
+            row.push(4);
+        }
+
+        // GRASS
+        else {
             row.push(0);
         }
     }
 
     map.push(row);
 }
-
 // PLAYER
 const player = {
     x: 200,
