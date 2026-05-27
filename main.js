@@ -41,6 +41,18 @@ const player = {
     color: "cyan"
 };
 
+// NPC
+const npc = {
+    x: 700,
+    y: 400,
+    width: 28,
+    height: 28,
+    color: "yellow",
+    message: "Something strange is happening in Hawkins..."
+};
+
+let showDialogue = false;
+
 // CAMERA
 const camera = {
     x: 0,
@@ -62,6 +74,19 @@ window.addEventListener("keydown", function(e) {
     }
 
     keys[e.key] = true;
+
+    // INTERACT
+    if(e.key === "e") {
+
+        let dx = player.x - npc.x;
+        let dy = player.y - npc.y;
+
+        let distance = Math.sqrt(dx * dx + dy * dy);
+
+        if(distance < 80) {
+            showDialogue = !showDialogue;
+        }
+    }
 });
 
 window.addEventListener("keyup", function(e) {
@@ -146,13 +171,56 @@ function drawPlayer() {
     );
 }
 
+// DRAW NPC
+function drawNPC() {
+
+    ctx.fillStyle = npc.color;
+
+    ctx.fillRect(
+        npc.x - camera.x,
+        npc.y - camera.y,
+        npc.width,
+        npc.height
+    );
+}
+
+// DRAW DIALOGUE
+function drawDialogue() {
+
+    if(!showDialogue) return;
+
+    ctx.fillStyle = "black";
+    ctx.fillRect(100, 500, 760, 100);
+
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(100, 500, 760, 100);
+
+    ctx.fillStyle = "white";
+    ctx.font = "20px monospace";
+
+    ctx.fillText(
+        npc.message,
+        120,
+        555
+    );
+
+    ctx.fillText(
+        "Press E to close",
+        120,
+        585
+    );
+}
+
 // DRAW
 function draw() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     drawMap();
+    drawNPC();
     drawPlayer();
+    drawDialogue();
 }
 
 // LOOP
