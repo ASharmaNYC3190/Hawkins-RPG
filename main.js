@@ -8,7 +8,7 @@ const TILE_SIZE = 32;
 
 // DAY/NIGHT
 let darkness = 0;
-let nightDirection = 0.001;
+let nightDirection = 0.0004;
 
 
 // BIG MAP
