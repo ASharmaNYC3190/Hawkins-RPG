@@ -86,16 +86,24 @@ const player = {
 // NPC
 // ========================================
 
+// NPC
 const npc = {
     x: 700,
     y: 400,
     width: 28,
     height: 28,
     color: "yellow",
-    message: "Something strange is happening in Hawkins..."
+
+    dialogue: [
+        "Something strange is happening in Hawkins...",
+        "People keep disappearing near the woods.",
+        "I saw lights coming from Hawkins Lab last night.",
+        "You should be careful out there."
+    ]
 };
 
 let showDialogue = false;
+let dialogueIndex = 0;
 
 // ========================================
 // CAMERA
@@ -126,18 +134,34 @@ window.addEventListener("keydown", function(e) {
     keys[e.key] = true;
 
     // INTERACT
-    if(e.key === "e") {
+    // INTERACT
+if(e.key === "e") {
 
-        let dx = player.x - npc.x;
-        let dy = player.y - npc.y;
+    let dx = player.x - npc.x;
+    let dy = player.y - npc.y;
 
-        let distance = Math.sqrt(dx * dx + dy * dy);
+    let distance = Math.sqrt(dx * dx + dy * dy);
 
-        if(distance < 80) {
-            showDialogue = !showDialogue;
-        }
+    // START DIALOGUE
+    if(distance < 80 && !showDialogue) {
+
+        showDialogue = true;
+        dialogueIndex = 0;
     }
 
+    // NEXT DIALOGUE LINE
+    else if(showDialogue) {
+
+        dialogueIndex++;
+
+        // END DIALOGUE
+        if(dialogueIndex >= npc.dialogue.length) {
+
+            showDialogue = false;
+            dialogueIndex = 0;
+        }
+    }
+}
     // FLASHLIGHT TOGGLE
     if(e.key === "f") {
         flashlightOn = !flashlightOn;
@@ -301,13 +325,13 @@ function drawDialogue() {
     ctx.font = "20px monospace";
 
     ctx.fillText(
-        npc.message,
+        npc.dialogue[dialogueIndex],
         120,
         555
     );
 
     ctx.fillText(
-        "Press E to close",
+        "Press E to continue",
         120,
         585
     );
