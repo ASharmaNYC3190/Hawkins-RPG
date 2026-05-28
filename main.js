@@ -6,6 +6,10 @@ canvas.height = 640;
 
 const TILE_SIZE = 32;
 
+// DAY/NIGHT
+let darkness = 0;
+let nightDirection = 0.001;
+
 
 // BIG MAP
 const map = [];
@@ -160,6 +164,13 @@ function update() {
     // CAMERA FOLLOWS PLAYER
     camera.x = player.x - canvas.width / 2;
     camera.y = player.y - canvas.height / 2;
+
+        // DAY/NIGHT CYCLE
+    darkness += nightDirection;
+
+    if(darkness > 0.7 || darkness < 0) {
+        nightDirection *= -1;
+    }
 }
 
 // DRAW MAP
@@ -259,6 +270,18 @@ function drawDialogue() {
     );
 }
 
+function drawDarkness() {
+
+    ctx.fillStyle = `rgba(0, 0, 20, ${darkness})`;
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+}
+
 // DRAW
 function draw() {
 
@@ -268,6 +291,7 @@ function draw() {
     drawNPC();
     drawPlayer();
     drawDialogue();
+    drawDarkness();
 }
 
 // LOOP
