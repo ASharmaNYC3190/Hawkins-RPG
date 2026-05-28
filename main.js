@@ -83,10 +83,9 @@ const player = {
 };
 
 // ========================================
-// NPC
+// NPC + DIALOGUE CHOICES
 // ========================================
 
-// NPC
 const npc = {
     x: 700,
     y: 400,
@@ -94,16 +93,43 @@ const npc = {
     height: 28,
     color: "yellow",
 
-    dialogue: [
-        "Something strange is happening in Hawkins...",
-        "People keep disappearing near the woods.",
-        "I saw lights coming from Hawkins Lab last night.",
-        "You should be careful out there."
-    ]
+    dialogue: {
+
+        start: {
+            text: "What do you want to ask about?",
+            choices: [
+                {
+                    text: "Ask about Hawkins Lab",
+                    next: "lab"
+                },
+                {
+                    text: "Ask about the woods",
+                    next: "woods"
+                },
+                {
+                    text: "Leave",
+                    next: "leave"
+                }
+            ]
+        },
+
+        lab: {
+            text: "I heard strange experiments are happening there."
+        },
+
+        woods: {
+            text: "People hear screaming at night near the forest."
+        },
+
+        leave: {
+            text: "Stay safe out there..."
+        }
+    }
 };
 
 let showDialogue = false;
-let dialogueIndex = 0;
+let currentDialogue = "start";
+let selectedChoice = 0;
 
 // ========================================
 // CAMERA
@@ -133,36 +159,90 @@ window.addEventListener("keydown", function(e) {
 
     keys[e.key] = true;
 
-    // INTERACT
-    // INTERACT
-if(e.key === "e") {
+    // ========================================
+    // DIALOGUE CHOICE NAVIGATION
+    // ========================================
 
-    let dx = player.x - npc.x;
-    let dy = player.y - npc.y;
+    if(showDialogue) {
 
-    let distance = Math.sqrt(dx * dx + dy * dy);
+        let choices =
+            npc.dialogue[currentDialogue].choices;
 
-    // START DIALOGUE
-    if(distance < 80 && !showDialogue) {
+        // MOVE UP
+        if(e.key === "ArrowUp") {
 
-        showDialogue = true;
-        dialogueIndex = 0;
-    }
+            if(choices) {
 
-    // NEXT DIALOGUE LINE
-    else if(showDialogue) {
+                selectedChoice--;
 
-        dialogueIndex++;
+                if(selectedChoice < 0) {
+                    selectedChoice =
+                        choices.length - 1;
+                }
+            }
+        }
 
-        // END DIALOGUE
-        if(dialogueIndex >= npc.dialogue.length) {
+        // MOVE DOWN
+        if(e.key === "ArrowDown") {
 
-            showDialogue = false;
-            dialogueIndex = 0;
+            if(choices) {
+
+                selectedChoice++;
+
+                if(selectedChoice >= choices.length) {
+                    selectedChoice = 0;
+                }
+            }
         }
     }
-}
+
+    // ========================================
+    // INTERACT
+    // ========================================
+
+    if(e.key === "e") {
+
+        let dx = player.x - npc.x;
+        let dy = player.y - npc.y;
+
+        let distance = Math.sqrt(dx * dx + dy * dy);
+
+        // START DIALOGUE
+        if(distance < 80 && !showDialogue) {
+
+            showDialogue = true;
+            currentDialogue = "start";
+            selectedChoice = 0;
+        }
+
+        // HANDLE DIALOGUE
+        else if(showDialogue) {
+
+            let current =
+                npc.dialogue[currentDialogue];
+
+            // HAS CHOICES
+            if(current.choices) {
+
+                currentDialogue =
+                    current.choices[selectedChoice].next;
+
+                selectedChoice = 0;
+            }
+
+            // END DIALOGUE
+            else {
+
+                showDialogue = false;
+                currentDialogue = "start";
+            }
+        }
+    }
+
+    // ========================================
     // FLASHLIGHT TOGGLE
+    // ========================================
+
     if(e.key === "f") {
         flashlightOn = !flashlightOn;
     }
@@ -314,27 +394,60 @@ function drawDialogue() {
 
     if(!showDialogue) return;
 
+    const current =
+        npc.dialogue[currentDialogue];
+
+    // DIALOGUE BOX
     ctx.fillStyle = "black";
-    ctx.fillRect(100, 500, 760, 100);
+    ctx.fillRect(100, 420, 760, 180);
 
     ctx.strokeStyle = "white";
     ctx.lineWidth = 4;
-    ctx.strokeRect(100, 500, 760, 100);
+    ctx.strokeRect(100, 420, 760, 180);
 
+    // TEXT
     ctx.fillStyle = "white";
     ctx.font = "20px monospace";
 
     ctx.fillText(
-        npc.dialogue[dialogueIndex],
+        current.text,
         120,
-        555
+        460
     );
 
-    ctx.fillText(
-        "Press E to continue",
-        120,
-        585
-    );
+    // CHOICES
+    if(current.choices) {
+
+        for(let i = 0; i < current.choices.length; i++) {
+
+            // SELECTED OPTION
+            if(i === selectedChoice) {
+                ctx.fillStyle = "yellow";
+            }
+
+            else {
+                ctx.fillStyle = "white";
+            }
+
+            ctx.fillText(
+                current.choices[i].text,
+                140,
+                510 + i * 30
+            );
+        }
+    }
+
+    // CONTINUE
+    else {
+
+        ctx.fillStyle = "gray";
+
+        ctx.fillText(
+            "Press E to continue",
+            120,
+            560
+        );
+    }
 }
 
 // ========================================
