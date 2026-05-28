@@ -6,12 +6,18 @@ canvas.height = 640;
 
 const TILE_SIZE = 32;
 
-// DAY/NIGHT
+// ========================================
+// DAY / NIGHT + FLASHLIGHT
+// ========================================
+
 let darkness = 0;
 let nightDirection = 0.0004;
+let flashlightOn = true;
 
-
+// ========================================
 // BIG MAP
+// ========================================
+
 const map = [];
 
 for(let y = 0; y < 50; y++) {
@@ -62,7 +68,11 @@ for(let y = 0; y < 50; y++) {
 
     map.push(row);
 }
+
+// ========================================
 // PLAYER
+// ========================================
+
 const player = {
     x: 200,
     y: 200,
@@ -72,7 +82,10 @@ const player = {
     color: "cyan"
 };
 
+// ========================================
 // NPC
+// ========================================
+
 const npc = {
     x: 700,
     y: 400,
@@ -84,13 +97,19 @@ const npc = {
 
 let showDialogue = false;
 
+// ========================================
 // CAMERA
+// ========================================
+
 const camera = {
     x: 0,
     y: 0
 };
 
+// ========================================
 // KEYS
+// ========================================
+
 const keys = {};
 
 window.addEventListener("keydown", function(e) {
@@ -118,13 +137,21 @@ window.addEventListener("keydown", function(e) {
             showDialogue = !showDialogue;
         }
     }
+
+    // FLASHLIGHT TOGGLE
+    if(e.key === "f") {
+        flashlightOn = !flashlightOn;
+    }
 });
 
 window.addEventListener("keyup", function(e) {
     keys[e.key] = false;
 });
 
+// ========================================
 // COLLISION
+// ========================================
+
 function isColliding(x, y) {
 
     let tileX = Math.floor(x / TILE_SIZE);
@@ -142,7 +169,10 @@ function isColliding(x, y) {
     return map[tileY][tileX] === 1;
 }
 
+// ========================================
 // UPDATE
+// ========================================
+
 function update() {
 
     let nextX = player.x;
@@ -165,15 +195,18 @@ function update() {
     camera.x = player.x - canvas.width / 2;
     camera.y = player.y - canvas.height / 2;
 
-        // DAY/NIGHT CYCLE
+    // DAY/NIGHT CYCLE
     darkness += nightDirection;
 
-    if(darkness > 0.7 || darkness < 0) {
+    if(darkness > 0.85 || darkness < 0) {
         nightDirection *= -1;
     }
 }
 
+// ========================================
 // DRAW MAP
+// ========================================
+
 function drawMap() {
 
     for(let y = 0; y < map.length; y++) {
@@ -216,7 +249,11 @@ function drawMap() {
         }
     }
 }
+
+// ========================================
 // DRAW PLAYER
+// ========================================
+
 function drawPlayer() {
 
     ctx.fillStyle = player.color;
@@ -229,7 +266,10 @@ function drawPlayer() {
     );
 }
 
+// ========================================
 // DRAW NPC
+// ========================================
+
 function drawNPC() {
 
     ctx.fillStyle = npc.color;
@@ -242,7 +282,10 @@ function drawNPC() {
     );
 }
 
+// ========================================
 // DRAW DIALOGUE
+// ========================================
+
 function drawDialogue() {
 
     if(!showDialogue) return;
@@ -270,9 +313,14 @@ function drawDialogue() {
     );
 }
 
+// ========================================
+// DARKNESS + FLASHLIGHT
+// ========================================
+
 function drawDarkness() {
 
-    ctx.fillStyle = `rgba(0, 0, 20, ${darkness})`;
+    // DARKNESS OVERLAY
+    ctx.fillStyle = `rgba(0, 0, 0, ${darkness})`;
 
     ctx.fillRect(
         0,
@@ -280,9 +328,47 @@ function drawDarkness() {
         canvas.width,
         canvas.height
     );
+
+    // FLASHLIGHT
+    if(flashlightOn) {
+
+        const gradient = ctx.createRadialGradient(
+            player.x - camera.x,
+            player.y - camera.y,
+            20,
+
+            player.x - camera.x,
+            player.y - camera.y,
+            140
+        );
+
+        gradient.addColorStop(0, "rgba(255,255,220,0)");
+        gradient.addColorStop(1, `rgba(0,0,0,${darkness})`);
+
+        ctx.globalCompositeOperation = "destination-out";
+
+        ctx.fillStyle = gradient;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            player.x - camera.x,
+            player.y - camera.y,
+            140,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+
+        ctx.globalCompositeOperation = "source-over";
+    }
 }
 
+// ========================================
 // DRAW
+// ========================================
+
 function draw() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -294,7 +380,10 @@ function draw() {
     drawDarkness();
 }
 
-// LOOP
+// ========================================
+// GAME LOOP
+// ========================================
+
 function gameLoop() {
 
     update();
