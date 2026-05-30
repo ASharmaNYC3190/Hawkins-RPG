@@ -6,7 +6,6 @@ for(let y = 0; y < 50; y++) {
 
     for(let x = 0; x < 50; x++) {
 
-        // WALLS
         if(
             x === 0 ||
             y === 0 ||
@@ -16,12 +15,10 @@ for(let y = 0; y < 50; y++) {
             row.push(1);
         }
 
-        // ROAD
         else if(y === 25) {
             row.push(2);
         }
 
-        // TREES
         else if(
             (x === 10 && y > 5 && y < 20) ||
             (x === 11 && y > 5 && y < 20) ||
@@ -30,7 +27,6 @@ for(let y = 0; y < 50; y++) {
             row.push(3);
         }
 
-        // HOUSE
         else if(
             x > 18 &&
             x < 24 &&
@@ -48,7 +44,23 @@ for(let y = 0; y < 50; y++) {
     map.push(row);
 }
 
-// DRAW MAP
+function isColliding(x, y) {
+
+    let tileX = Math.floor(x / TILE_SIZE);
+    let tileY = Math.floor(y / TILE_SIZE);
+
+    if(
+        tileX < 0 ||
+        tileY < 0 ||
+        tileY >= map.length ||
+        tileX >= map[0].length
+    ) {
+        return true;
+    }
+
+    return map[tileY][tileX] === 1;
+}
+
 function drawMap() {
 
     for(let y = 0; y < map.length; y++) {
