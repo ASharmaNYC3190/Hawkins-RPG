@@ -7,49 +7,49 @@ const player = {
     color: "cyan"
 };
 
-// COLLISION
-function isColliding(x, y) {
+const keys = {};
 
-    let tileX = Math.floor(x / TILE_SIZE);
-    let tileY = Math.floor(y / TILE_SIZE);
+window.addEventListener("keydown", function(e) {
 
-    if (
-        tileX < 0 ||
-        tileY < 0 ||
-        tileY >= map.length ||
-        tileX >= map[0].length
-    ) {
-        return true;
+    if([
+        "ArrowUp",
+        "ArrowDown",
+        "ArrowLeft",
+        "ArrowRight"
+    ].includes(e.key)) {
+        e.preventDefault();
     }
 
-    return map[tileY][tileX] === 1;
-}
+    keys[e.key] = true;
 
-// UPDATE PLAYER
+    if(e.key === "f") {
+        flashlightOn = !flashlightOn;
+    }
+});
+
+window.addEventListener("keyup", function(e) {
+    keys[e.key] = false;
+});
+
 function updatePlayer() {
 
     let nextX = player.x;
     let nextY = player.y;
 
-    if (keys["ArrowUp"]) nextY -= player.speed;
-    if (keys["ArrowDown"]) nextY += player.speed;
-    if (keys["ArrowLeft"]) nextX -= player.speed;
-    if (keys["ArrowRight"]) nextX += player.speed;
+    if(keys["ArrowUp"]) nextY -= player.speed;
+    if(keys["ArrowDown"]) nextY += player.speed;
+    if(keys["ArrowLeft"]) nextX -= player.speed;
+    if(keys["ArrowRight"]) nextX += player.speed;
 
-    if (!isColliding(nextX, player.y)) {
+    if(!isColliding(nextX, player.y)) {
         player.x = nextX;
     }
 
-    if (!isColliding(player.x, nextY)) {
+    if(!isColliding(player.x, nextY)) {
         player.y = nextY;
     }
-
-    // CAMERA
-    camera.x = player.x - canvas.width / 2;
-    camera.y = player.y - canvas.height / 2;
 }
 
-// DRAW PLAYER
 function drawPlayer() {
 
     ctx.fillStyle = player.color;
