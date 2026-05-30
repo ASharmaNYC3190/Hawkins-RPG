@@ -43,7 +43,75 @@ let showDialogue = false;
 let currentDialogue = "start";
 let selectedChoice = 0;
 
-// NPC
+window.addEventListener("keydown", function(e) {
+
+    if(showDialogue) {
+
+        let choices =
+            npc.dialogue[currentDialogue].choices;
+
+        if(e.key === "ArrowUp") {
+
+            if(choices) {
+
+                selectedChoice--;
+
+                if(selectedChoice < 0) {
+                    selectedChoice =
+                        choices.length - 1;
+                }
+            }
+        }
+
+        if(e.key === "ArrowDown") {
+
+            if(choices) {
+
+                selectedChoice++;
+
+                if(selectedChoice >= choices.length) {
+                    selectedChoice = 0;
+                }
+            }
+        }
+    }
+
+    if(e.key === "e") {
+
+        let dx = player.x - npc.x;
+        let dy = player.y - npc.y;
+
+        let distance = Math.sqrt(dx * dx + dy * dy);
+
+        if(distance < 80 && !showDialogue) {
+
+            showDialogue = true;
+            currentDialogue = "start";
+            selectedChoice = 0;
+        }
+
+        else if(showDialogue) {
+
+            let current =
+                npc.dialogue[currentDialogue];
+
+            if(current.choices) {
+
+                currentDialogue =
+                    current.choices[selectedChoice].next;
+
+                selectedChoice = 0;
+            }
+
+            else {
+
+                showDialogue = false;
+                currentDialogue = "start";
+            }
+        }
+    }
+});
+
 function drawNPC() {
 
     ctx.fillStyle = npc.color;
@@ -56,7 +124,6 @@ function drawNPC() {
     );
 }
 
-// DIALOGUE
 function drawDialogue() {
 
     if(!showDialogue) return;
